@@ -27,7 +27,7 @@ export default function Hero() {
               </div>
               
               <h1 className="text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 leading-tight" style={{fontFamily: "Pacifico, serif"}}>
-                Vijna X
+                Career Compass
               </h1>
               
               <div className="space-y-4">

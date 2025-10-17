@@ -5,7 +5,7 @@ export default function TestInstructions() {
   };
 
   const instructions = [
-    'This test contains 60 multiple-choice questions covering various domains',
+    'This test contains 70 multiple-choice questions covering various domains',
     'You have 60 minutes to complete the entire assessment',
     'Each question has 4-5 options. Select the one that best describes you',
     'There are no right or wrong answers - answer honestly',
@@ -15,12 +15,13 @@ export default function TestInstructions() {
   ];
 
   const domains = [
-    { name: 'Logical Reasoning', questions: 15 },
-    { name: 'Numerical Ability', questions: 12 },
-    { name: 'Verbal Ability', questions: 10 },
-    { name: 'Spatial Intelligence', questions: 8 },
-    { name: 'Personality Traits', questions: 10 },
-    { name: 'Interest Areas', questions: 5 }
+    { name: 'Section A - Aptitude', questions: 15 },
+    { name: 'Section B - Career interests RAISEC', questions: 12 },
+    { name: 'Section C - Decision making', questions: 10 },
+    { name: 'Section D - Emotional social intelligence', questions: 8 },
+    { name: 'Section E - Learning orientation', questions: 10 },
+    { name: 'Section F - Personality Traits', questions: 10 },
+    { name: 'Section G - Work values', questions: 5 }
   ];
 
   return (
@@ -29,7 +30,7 @@ export default function TestInstructions() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2" style={{fontFamily: "Pacifico, serif"}}>
-            Vijna X
+            Career Compass
           </h1>
           <h2 className="text-2xl font-semibold text-gray-800">
             Instructions Before You Begin
@@ -51,14 +52,14 @@ export default function TestInstructions() {
                 <i className="ri-question-line w-8 h-8 flex items-center justify-center text-2xl"></i>
               </div>
               <h3 className="font-semibold text-gray-900">Questions</h3>
-              <p className="text-green-600 font-bold">60 Questions</p>
+              <p className="text-green-600 font-bold">70 Questions</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 flex items-center justify-center bg-purple-600 text-white rounded-full mx-auto mb-3">
                 <i className="ri-brain-line w-8 h-8 flex items-center justify-center text-2xl"></i>
               </div>
               <h3 className="font-semibold text-gray-900">Domains</h3>
-              <p className="text-purple-600 font-bold">6 Areas</p>
+              <p className="text-purple-600 font-bold">7 Areas</p>
             </div>
           </div>
 

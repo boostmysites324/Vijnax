@@ -1,0 +1,171 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "text": "A number is doubled and then 9 is added. If the result is 31, what was the number?",
+      "options": [
+        { "text": "9", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "10", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "11", "isCorrect": true, "score": 10, "domain": "aptitude" },
+        { "text": "12", "isCorrect": false, "score": 0, "domain": "aptitude" }
+      ],
+      "domain": "aptitude",
+      "category": "mathematical_logic",
+      "difficulty": "medium",
+      "type": "multiple_choice",
+      "correctAnswer": "C",
+      "explanation": "Let the number be x. Then 2x + 9 = 31, so 2x = 22, x = 11",
+      "streamMapping": ["PCM", "Commerce"],
+      "skill": "Algebraic framing, two-step logical decoding",
+      "tags": ["algebra", "problem-solving"],
+      "metadata": {
+        "estimatedTime": 90,
+        "weightage": 1.2,
+        "reliability": 0.9,
+        "validity": 0.85
+      }
+    },
+    {
+      "id": 2,
+      "text": "\"All mammals have lungs. All whales are mammals.\" What can you infer?",
+      "options": [
+        { "text": "All whales have lungs", "isCorrect": true, "score": 10, "domain": "aptitude" },
+        { "text": "Only some whales have lungs", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "Whales may or may not have lungs", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "None of the above", "isCorrect": false, "score": 0, "domain": "aptitude" }
+      ],
+      "domain": "aptitude",
+      "category": "verbal_inference",
+      "difficulty": "medium",
+      "type": "multiple_choice",
+      "correctAnswer": "A",
+      "explanation": "Logical chain from general to specific: All mammals have lungs, whales are mammals, therefore whales have lungs",
+      "streamMapping": ["PCM", "Humanities"],
+      "skill": "High standard due to logical chain from general to specific",
+      "tags": ["logic", "inference"],
+      "metadata": {
+        "estimatedTime": 75,
+        "weightage": 1.1,
+        "reliability": 0.88,
+        "validity": 0.9
+      }
+    },
+    {
+      "id": 3,
+      "text": "Which term comes next in the series: 2, 3, 5, 8, 13, ?",
+      "options": [
+        { "text": "18", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "20", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "21", "isCorrect": true, "score": 10, "domain": "aptitude" },
+        { "text": "22", "isCorrect": false, "score": 0, "domain": "aptitude" }
+      ],
+      "domain": "aptitude",
+      "category": "pattern_recognition",
+      "difficulty": "medium",
+      "type": "multiple_choice",
+      "correctAnswer": "C",
+      "explanation": "Fibonacci sequence: each number is the sum of the two preceding ones (2+3=5, 3+5=8, 5+8=13, 8+13=21)",
+      "streamMapping": ["PCM"],
+      "skill": "Fibonacci-based logic—tests mathematical curiosity",
+      "tags": ["sequence", "fibonacci", "patterns"],
+      "metadata": {
+        "estimatedTime": 60,
+        "weightage": 1.0,
+        "reliability": 0.92,
+        "validity": 0.88
+      }
+    },
+    {
+      "id": 4,
+      "text": "If ◆ = 2 and ▲ = 3, and (◆ + ▲)² = ?, what is the result?",
+      "options": [
+        { "text": "12", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "25", "isCorrect": true, "score": 10, "domain": "aptitude" },
+        { "text": "10", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "20", "isCorrect": false, "score": 0, "domain": "aptitude" }
+      ],
+      "domain": "aptitude",
+      "category": "abstract_reasoning",
+      "difficulty": "easy",
+      "type": "multiple_choice",
+      "correctAnswer": "B",
+      "explanation": "(2 + 3)² = 5² = 25",
+      "streamMapping": ["PCM"],
+      "skill": "Tests symbolic algebra, abstract manipulation",
+      "tags": ["algebra", "symbols", "abstract"],
+      "metadata": {
+        "estimatedTime": 45,
+        "weightage": 0.8,
+        "reliability": 0.85,
+        "validity": 0.82
+      }
+    },
+    {
+      "id": 5,
+      "text": "If 40% of a number is 84, what is the number?",
+      "options": [
+        { "text": "160", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "180", "isCorrect": false, "score": 0, "domain": "aptitude" },
+        { "text": "210", "isCorrect": true, "score": 10, "domain": "aptitude" },
+        { "text": "220", "isCorrect": false, "score": 0, "domain": "aptitude" }
+      ],
+      "domain": "aptitude",
+      "category": "quantitative_estimation",
+      "difficulty": "medium",
+      "type": "multiple_choice",
+      "correctAnswer": "C",
+      "explanation": "40% of x = 84, so x = 84 ÷ 0.4 = 210",
+      "streamMapping": ["Commerce", "PCM"],
+      "skill": "Percent-to-whole inversion—tests comfort with reverse operations",
+      "tags": ["percentage", "calculation"],
+      "metadata": {
+        "estimatedTime": 60,
+        "weightage": 1.1,
+        "reliability": 0.87,
+        "validity": 0.89
+      }
+    }
+  ],
+  "metadata": {
+    "totalQuestions": 160,
+    "streams": ["PCM", "PCB", "Commerce", "Humanities"],
+    "categories": [
+      "mathematical_logic",
+      "verbal_inference", 
+      "pattern_recognition",
+      "abstract_reasoning",
+      "quantitative_estimation",
+      "graph_interpretation",
+      "word_puzzle",
+      "spatial_folding",
+      "scientific_deduction",
+      "ratio_reasoning",
+      "sequence_pattern",
+      "reading_comprehension",
+      "geometry_reasoning",
+      "deductive_chain",
+      "equation_puzzle",
+      "scientific_pattern",
+      "arithmetic_logic",
+      "analogy_reasoning",
+      "data_interpretation",
+      "coding_puzzle",
+      "business_math",
+      "sentence_logic",
+      "time_work_logic",
+      "biological_logic",
+      "grammar_reasoning",
+      "financial_logic",
+      "experimental_logic",
+      "classification_logic"
+    ],
+    "difficulties": ["easy", "medium", "hard"],
+    "importDate": "2024-01-01",
+    "version": "1.0"
+  }
+}
+
+
+
+
+

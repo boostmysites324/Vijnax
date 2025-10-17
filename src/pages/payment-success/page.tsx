@@ -133,8 +133,8 @@ export default function PaymentSuccess() {
                 📞 +91 98765 43210
               </a>
               <span className="text-gray-400">|</span>
-              <a href="mailto:support@vijnax.com" className="text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap cursor-pointer">
-                ✉️ support@vijnax.com
+                              <a href="mailto:support@careercompass.com" className="text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap cursor-pointer">
+                  ✉️ support@careercompass.com
               </a>
             </div>
           </div>

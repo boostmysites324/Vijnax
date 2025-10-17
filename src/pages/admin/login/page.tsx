@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { authAPI } from '../../../services/api.js';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -19,15 +20,23 @@ export default function AdminLogin() {
     setLoading(true);
     setError('');
 
-    // Simulate login process
-    setTimeout(() => {
-      setLoading(false);
-      if (email === 'admin@vijnax.com' && password === 'admin123') {
+    try {
+      const response = await authAPI.adminLogin({ email, password });
+      
+      if (response.success) {
+        // Store admin token
+        localStorage.setItem('adminToken', response.data.token);
+        localStorage.setItem('adminUser', JSON.stringify(response.data.user));
+        
         window.REACT_APP_NAVIGATE('/admin/dashboard');
       } else {
-        setError('Invalid email or password');
+        setError(response.message || 'Invalid credentials');
       }
-    }, 2000);
+    } catch (error) {
+      setError(error.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,7 +59,7 @@ export default function AdminLogin() {
               <i className="ri-admin-line w-10 h-10 flex items-center justify-center text-white text-2xl"></i>
             </div>
             <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-3" style={{fontFamily: "Pacifico, serif"}}>
-              Vijna X
+              Career Compass
             </h1>
             <h2 className="text-xl font-semibold text-gray-800 mb-2">
               Admin Panel
@@ -79,7 +88,7 @@ export default function AdminLogin() {
                     setError('');
                   }}
                   className="block w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl text-lg font-medium focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 bg-gray-50/50"
-                  placeholder="admin@vijnax.com"
+                                      placeholder="admin@careercompass.com"
                   required
                 />
               </div>
@@ -170,7 +179,7 @@ export default function AdminLogin() {
               <span className="font-semibold text-sm">Demo Credentials</span>
             </div>
             <div className="text-blue-700 text-xs space-y-1">
-              <p><strong>Email:</strong> admin@vijnax.com</p>
+                                <p><strong>Email:</strong> admin@careercompass.com</p>
               <p><strong>Password:</strong> admin123</p>
             </div>
           </div>

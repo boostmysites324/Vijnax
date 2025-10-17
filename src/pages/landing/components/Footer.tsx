@@ -15,7 +15,7 @@ export default function Footer() {
             <div className="lg:col-span-2 space-y-6">
               <div>
                 <h3 className="text-3xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400" style={{fontFamily: "Pacifico, serif"}}>
-                  Vijna X
+                  Career Compass
                 </h3>
                 <p className="text-gray-300 text-lg leading-relaxed max-w-md">
                   Empowering Indian students to make confident decisions about their future through scientifically validated psychometric assessments and AI-powered career guidance.
@@ -64,7 +64,7 @@ export default function Footer() {
               <ul className="space-y-4">
                 <li><a href="#" className="text-gray-300 hover:text-white hover:translate-x-2 transform transition-all duration-300 cursor-pointer flex items-center">
                   <i className="ri-arrow-right-s-line w-4 h-4 flex items-center justify-center mr-2 opacity-0 group-hover:opacity-100"></i>
-                  About Vijna X
+                  About Career Compass
                 </a></li>
                 <li><a href="#" className="text-gray-300 hover:text-white hover:translate-x-2 transform transition-all duration-300 cursor-pointer flex items-center">
                   <i className="ri-arrow-right-s-line w-4 h-4 flex items-center justify-center mr-2 opacity-0 group-hover:opacity-100"></i>
@@ -119,7 +119,7 @@ export default function Footer() {
                 </div>
                 <div className="flex items-center text-gray-300">
                   <i className="ri-mail-line w-5 h-5 flex items-center justify-center text-blue-400 mr-3"></i>
-                  <span className="text-sm">support@vijnax.com</span>
+                  <span className="text-sm">support@careercompass.com</span>
                 </div>
                 <div className="flex items-start text-gray-300">
                   <i className="ri-map-pin-line w-5 h-5 flex items-center justify-center text-blue-400 mr-3 mt-0.5"></i>
@@ -136,7 +136,7 @@ export default function Footer() {
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="flex items-center space-x-6">
                 <p className="text-gray-400 text-sm">
-                  © 2024 Vijna X. All rights reserved.
+                  © 2024 Career Compass. All rights reserved.
                 </p>
                 <div className="flex items-center space-x-4 text-xs text-gray-500">
                   <span>Made with ❤️ for Indian Students</span>

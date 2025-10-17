@@ -23,7 +23,7 @@ export default function Payment() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2" style={{fontFamily: "Pacifico, serif"}}>
-            Vijna X
+            Career Compass
           </h1>
           <h2 className="text-2xl font-semibold text-gray-800">
             Unlock Your Personalized Report

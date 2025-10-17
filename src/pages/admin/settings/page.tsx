@@ -17,8 +17,8 @@ export default function AdminSettings() {
   const [selectedGateway, setSelectedGateway] = useState<GatewayConfig | null>(null);
 
   const [generalSettings, setGeneralSettings] = useState({
-    platformName: 'Vijna X',
-    supportEmail: 'support@vijnax.com',
+          platformName: 'Career Compass',
+          supportEmail: 'support@careercompass.com',
     supportPhone: '+91 98765 43210',
     maintenanceMode: false,
     autoBackup: true,
@@ -47,7 +47,7 @@ export default function AdminSettings() {
       isEnabled: false,
       config: {
         apiKey: '***************',
-        sender: 'VIJNAX'
+        sender: 'CAREER COMPASS'
       }
     }
   ]);
@@ -82,7 +82,7 @@ export default function AdminSettings() {
     {
       id: '1',
       name: 'Super Admin',
-      email: 'admin@vijnax.com',
+              email: 'admin@careercompass.com',
       role: 'Super Admin',
       lastLogin: '2024-01-15 14:30:00',
       status: 'active'
@@ -90,7 +90,7 @@ export default function AdminSettings() {
     {
       id: '2',
       name: 'Content Manager',
-      email: 'content@vijnax.com',
+              email: 'content@careercompass.com',
       role: 'Content Manager',
       lastLogin: '2024-01-14 16:45:00',
       status: 'active'
