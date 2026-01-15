@@ -38,18 +38,25 @@ router.post('/send-otp', [
 
     const { mobile } = req.body;
 
-    // Send OTP
-    const otpSent = await sendOTP(mobile);
+    // Send OTP via MSG91
+    const result = await sendOTP(mobile);
     
-    if (otpSent) {
-      res.json({
+    if (result.success) {
+      const response = {
         success: true,
-        message: 'OTP sent successfully'
-      });
+        message: result.message
+      };
+      
+      // Include OTP in response for development mode only
+      if (process.env.NODE_ENV === 'development' && result.otp) {
+        response.otp = result.otp;
+      }
+      
+      res.json(response);
     } else {
       res.status(500).json({
         success: false,
-        message: 'Failed to send OTP'
+        message: result.message || 'Failed to send OTP'
       });
     }
   } catch (error) {
@@ -81,12 +88,12 @@ router.post('/verify-otp', [
     const { mobile, otp } = req.body;
 
     // Verify OTP
-    const isValidOTP = await verifyOTP(mobile, otp);
+    const verifyResult = await verifyOTP(mobile, otp);
     
-    if (!isValidOTP) {
+    if (!verifyResult.success) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid OTP'
+        message: verifyResult.message
       });
     }
 

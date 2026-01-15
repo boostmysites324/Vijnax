@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
+import axios from 'axios';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -94,15 +95,106 @@ async function connectDB() {
   console.log(`🗄️  MongoDB connected: ${uri}`);
 }
 
+// Self-ping mechanism to keep server alive
+let selfPingInterval = null;
+let pingCount = 0;
+let lastPingStatus = 'unknown';
+
+const startSelfPing = (port) => {
+  const pingInterval = parseInt(process.env.SELF_PING_INTERVAL_MS) || 30000; // Default: 30 seconds
+  const healthUrl = `http://localhost:${port}/api/health`;
+  
+  console.log(`🔄 Starting self-ping every ${pingInterval / 1000} seconds...`);
+  
+  selfPingInterval = setInterval(async () => {
+    try {
+      const response = await axios.get(healthUrl, { timeout: 5000 });
+      pingCount++;
+      lastPingStatus = response.status === 200 ? 'healthy' : 'unhealthy';
+      
+      if (pingCount % 20 === 0) { // Log every 20 pings (10 minutes at 30s interval)
+        console.log(`💓 Self-ping #${pingCount}: ${lastPingStatus.toUpperCase()} - ${response.data?.message || 'OK'}`);
+      }
+    } catch (error) {
+      lastPingStatus = 'error';
+      if (pingCount % 20 === 0) { // Only log errors periodically to avoid spam
+        console.error(`❌ Self-ping failed: ${error.message}`);
+      }
+    }
+  }, pingInterval);
+  
+  // Initial ping
+  setTimeout(async () => {
+    try {
+      const response = await axios.get(healthUrl, { timeout: 5000 });
+      console.log(`✅ Initial self-ping successful: ${response.data?.message || 'OK'}`);
+    } catch (error) {
+      console.error(`❌ Initial self-ping failed: ${error.message}`);
+    }
+  }, 2000); // Wait 2 seconds after server starts
+};
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully...');
+  if (selfPingInterval) {
+    clearInterval(selfPingInterval);
+  }
+  mongoose.connection.close().then(() => {
+    console.log('✅ MongoDB connection closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT received, shutting down gracefully...');
+  if (selfPingInterval) {
+    clearInterval(selfPingInterval);
+  }
+  mongoose.connection.close().then(() => {
+    console.log('✅ MongoDB connection closed');
+    process.exit(0);
+  });
+});
+
 // Start server
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`🚀 Career Compass API server running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+      
+      // Start self-ping after server is ready
+      startSelfPing(PORT);
     });
+    
+    // Enhanced health check with server status
+    app.get('/api/health/detailed', (req, res) => {
+      res.json({
+        status: 'OK',
+        message: 'Career Compass API is running',
+        timestamp: new Date().toISOString(),
+        version: '1.0.0',
+        uptime: process.uptime(),
+        memory: {
+          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + ' MB',
+          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + ' MB',
+          rss: Math.round(process.memoryUsage().rss / 1024 / 1024) + ' MB'
+        },
+        database: {
+          status: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+          readyState: mongoose.connection.readyState
+        },
+        selfPing: {
+          count: pingCount,
+          lastStatus: lastPingStatus,
+          interval: parseInt(process.env.SELF_PING_INTERVAL_MS) || 30000
+        }
+      });
+    });
+    
   } catch (err) {
     console.error('❌ Failed to start server:', err.message);
     process.exit(1);

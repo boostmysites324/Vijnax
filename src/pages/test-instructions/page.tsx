@@ -52,7 +52,7 @@ export default function TestInstructions() {
                 <i className="ri-question-line w-8 h-8 flex items-center justify-center text-2xl"></i>
               </div>
               <h3 className="font-semibold text-gray-900">Questions</h3>
-              <p className="text-green-600 font-bold">70 Questions</p>
+              <p className="text-green-600 font-bold">60 Questions</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 flex items-center justify-center bg-purple-600 text-white rounded-full mx-auto mb-3">

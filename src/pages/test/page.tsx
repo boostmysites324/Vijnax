@@ -44,96 +44,46 @@ export default function Test() {
     }));
   };
 
-  // Load A–G questions sequentially from section endpoints
+  // Load all 60 randomized questions from unified endpoint
   useEffect(() => {
     const loadPhased = async () => {
       try {
-        let assembled: Question[] = [];
-        let idx = 1;
-
-        // A — Aptitude (12)
-        {
-          const res = await fetch('/api/aptitude/generate-test', { method: 'POST', headers: authHeaders(), body: JSON.stringify({}) });
-          const json = await res.json();
-          const list: ApiQuestionGeneric[] = json?.data?.questions || [];
-          const mapped = mapToLocal('Aptitude', list, idx);
-          assembled = assembled.concat(mapped);
-          idx += mapped.length;
+        console.log('🔄 Loading randomized test questions...');
+        
+        // Call the new unified endpoint that returns all 60 randomized questions
+        const res = await fetch('/api/tests/generate/randomized', { 
+          method: 'POST', 
+          headers: authHeaders(), 
+          body: JSON.stringify({ userStream: 'PCM' }) 
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Failed to load test: ${res.status} ${res.statusText}`);
         }
-
-        // B — RIASEC (10)
-        {
-          const res = await fetch('/api/riasec/generate-section-b', { method: 'POST', headers: authHeaders(), body: JSON.stringify({}) });
-          const json = await res.json();
-          const list: ApiQuestionGeneric[] = json?.data?.questions || [];
-          const mapped = mapToLocal('RIASEC', list, idx);
-          assembled = assembled.concat(mapped);
-          idx += mapped.length;
+        
+        const json = await res.json();
+        console.log('✅ Test data received:', json);
+        
+        if (!json.success) {
+          throw new Error(json.message || 'Failed to generate test');
         }
+        
+        // Map the questions from the new API format
+        const apiQuestions = json.data?.questions || [];
+        const assembled: Question[] = apiQuestions.map((q: any) => ({
+          id: q.questionNumber,
+          text: q.text,
+          options: (q.options || []).map((o: any) => o.text),
+          domain: q.section || q.domain || 'General'
+        }));
 
-        // C — Big Five (10)
-        {
-          const res = await fetch('/api/personality/generate-section-c', { method: 'POST', headers: authHeaders(), body: JSON.stringify({}) });
-          const json = await res.json();
-          const list: ApiQuestionGeneric[] = json?.data?.questions || [];
-          const mapped = mapToLocal('BigFive', list, idx);
-          assembled = assembled.concat(mapped);
-          idx += mapped.length;
+        console.log(`📝 Loaded ${assembled.length} questions`);
+        
+        if (assembled.length === 0) {
+          console.error('❌ No questions loaded!');
+          throw new Error('No questions received from server');
         }
-
-        // D — Decision (8)
-        {
-          const res = await fetch('/api/decision/generate-section-d', { method: 'POST', headers: authHeaders(), body: JSON.stringify({}) });
-          const json = await res.json();
-          const list: ApiQuestionGeneric[] = json?.data?.questions || [];
-          const mapped = mapToLocal('Decision', list, idx);
-          assembled = assembled.concat(mapped);
-          idx += mapped.length;
-        }
-
-        // E — Learning (8)
-        {
-          const res = await fetch('/api/learning/generate-section-e', { method: 'POST', headers: authHeaders(), body: JSON.stringify({}) });
-          const json = await res.json();
-          const list: ApiQuestionGeneric[] = json?.data?.questions || [];
-          const mapped = mapToLocal('Learning', list, idx);
-          assembled = assembled.concat(mapped);
-          idx += mapped.length;
-        }
-
-        // F — ESI (6)
-        {
-          const res = await fetch('/api/esi/generate-section-f', { method: 'POST', headers: authHeaders(), body: JSON.stringify({}) });
-          const json = await res.json();
-          const list: ApiQuestionGeneric[] = json?.data?.questions || [];
-          const mapped = mapToLocal('ESI', list, idx);
-          assembled = assembled.concat(mapped);
-          idx += mapped.length;
-        }
-
-        // G — Work Values (6): explicit counts
-        {
-          const body = {
-            subthemes: [
-              'Achievement Orientation','Stability & Structure','Creativity & Freedom','Helping & Service','Leadership & Influence'
-            ],
-            total: 6,
-            perSubthemeCounts: {
-              'Achievement Orientation': 2,
-              'Stability & Structure': 1,
-              'Creativity & Freedom': 1,
-              'Helping & Service': 1,
-              'Leadership & Influence': 1
-            }
-          };
-          const res = await fetch('/api/values-work/generate', { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
-          const json = await res.json();
-          const list: ApiQuestionGeneric[] = json?.data?.questions || [];
-          const mapped = mapToLocal('WorkValues', list, idx);
-          assembled = assembled.concat(mapped);
-          idx += mapped.length;
-        }
-
+        
         setQuestions(assembled);
       } catch (e) {
         console.error('Failed to load phased A–G test.', e);

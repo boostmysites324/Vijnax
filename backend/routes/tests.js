@@ -1,7 +1,9 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import { body, validationResult } from 'express-validator';
 import Test from '../models/Test.js';
 import Question from '../models/Question.js';
+import RIASECQuestion from '../models/RIASECQuestion.js';
 import { verifyToken } from '../middleware/auth.js';
 import questionSelector from '../services/questionSelector.js';
 import riasecSelector, { SECTION_B_DISTRIBUTION } from '../services/riasecSelector.js';
@@ -10,6 +12,7 @@ import decisionSelector from '../services/decisionSelector.js';
 import learningSelector from '../services/learningSelector.js';
 import esiSelector from '../services/esiSelector.js';
 import workValuesSelector, { WORK_SUBTHEMES } from '../services/workValuesSelector.js';
+import enhancedSelector from '../services/enhancedQuestionSelector.js';
 
 const router = express.Router();
 
@@ -564,7 +567,7 @@ router.get('/:testId/results', verifyToken, async (req, res) => {
 });
 
 // @route   POST /api/tests/generate/full
-// @desc    Generate full 60-question test with all sections and exact extraction criteria
+// @desc    Generate full 60-question test with all sections and exact extraction criteria (OLD VERSION)
 // @access  Private
 router.post('/generate/full', verifyToken, async (req, res) => {
   try {
@@ -655,6 +658,297 @@ router.post('/generate/full', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('Error generating full test:', error);
     res.status(500).json({ success: false, message: 'Failed to generate full test', error: error.message });
+  }
+});
+
+// @route   POST /api/tests/generate/randomized
+// @desc    Generate complete 60-question test with proper randomization from all imported sections
+// @access  Private
+router.post('/generate/randomized', verifyToken, async (req, res) => {
+  try {
+    const { userStream = 'PCM' } = req.body;
+    
+    console.log(`🎯 Generating randomized test for stream: ${userStream}`);
+    
+    // Section A: Aptitude Questions (15 questions) - Random from 99
+    const aptitudeQuestions = await Question.aggregate([
+      { $match: { domain: 'aptitude', isActive: true } },
+      { $sample: { size: 15 } }
+    ]);
+    
+    // Section B: RIASEC Questions (10 questions) - Random from 56
+    const riasecQuestions = await RIASECQuestion.aggregate([
+      { $match: { isActive: true } },
+      { $sample: { size: 10 } }
+    ]);
+    
+    // Section C: Decision Making (6 questions) - Random from 38
+    const decisionQuestions = await Question.aggregate([
+      { $match: { category: 'problem_solving', tags: { $in: ['problem_solving', 'decision_making'] }, isActive: true } },
+      { $sample: { size: 6 } }
+    ]);
+    
+    // Section D: ESI Questions (6 questions) - Random from 60
+    const esiQuestions = await Question.aggregate([
+      { $match: { category: 'stress_management', tags: 'emotional_intelligence', isActive: true } },
+      { $sample: { size: 6 } }
+    ]);
+    
+    // Section E: Learning Orientation (8 questions) - Random from 58
+    const learningQuestions = await Question.aggregate([
+      { $match: { category: 'learning_style', isActive: true } },
+      { $sample: { size: 8 } }
+    ]);
+    
+    // Section F: Big Five Personality (10 questions) - Random from 105
+    const personalityQuestions = await Question.aggregate([
+      { $match: { domain: 'personality', category: 'personality_traits', isActive: true } },
+      { $sample: { size: 10 } }
+    ]);
+    
+    // Section G: Work Values (5 questions) - Random from 35
+    const workValuesQuestions = await Question.aggregate([
+      { $match: { category: 'work_values', isActive: true } },
+      { $sample: { size: 5 } }
+    ]);
+    
+    // Format all sections
+    let questionNumber = 1;
+    const sections = [];
+    
+    // Section A - Aptitude
+    sections.push({
+      section: 'A',
+      name: 'Aptitude',
+      count: aptitudeQuestions.length,
+      questions: aptitudeQuestions.map(q => ({
+        questionNumber: questionNumber++,
+        questionId: q._id,
+        text: q.text,
+        options: q.options || [],
+        domain: q.domain,
+        category: q.category,
+        tags: q.tags || [],
+        section: 'A'
+      }))
+    });
+    
+    // Section B - RIASEC
+    sections.push({
+      section: 'B',
+      name: 'Career Interests (RIASEC)',
+      count: riasecQuestions.length,
+      questions: riasecQuestions.map(q => ({
+        questionNumber: questionNumber++,
+        questionId: q._id,
+        text: q.text,
+        options: q.options || [],
+        category: q.category || 'career_interest',
+        tags: q.tags || [],
+        section: 'B'
+      }))
+    });
+    
+    // Section C - Decision Making
+    sections.push({
+      section: 'C',
+      name: 'Decision Making',
+      count: decisionQuestions.length,
+      questions: decisionQuestions.map(q => ({
+        questionNumber: questionNumber++,
+        questionId: q._id,
+        text: q.text,
+        options: q.options || [],
+        domain: q.domain,
+        category: q.category,
+        tags: q.tags || [],
+        section: 'C'
+      }))
+    });
+    
+    // Section D - ESI
+    sections.push({
+      section: 'D',
+      name: 'Emotional & Social Intelligence',
+      count: esiQuestions.length,
+      questions: esiQuestions.map(q => ({
+        questionNumber: questionNumber++,
+        questionId: q._id,
+        text: q.text,
+        options: q.options || [],
+        domain: q.domain,
+        category: q.category,
+        tags: q.tags || [],
+        section: 'D'
+      }))
+    });
+    
+    // Section E - Learning
+    sections.push({
+      section: 'E',
+      name: 'Learning Orientation',
+      count: learningQuestions.length,
+      questions: learningQuestions.map(q => ({
+        questionNumber: questionNumber++,
+        questionId: q._id,
+        text: q.text,
+        options: q.options || [],
+        domain: q.domain,
+        category: q.category,
+        tags: q.tags || [],
+        section: 'E'
+      }))
+    });
+    
+    // Section F - Personality
+    sections.push({
+      section: 'F',
+      name: 'Personality Traits',
+      count: personalityQuestions.length,
+      questions: personalityQuestions.map(q => ({
+        questionNumber: questionNumber++,
+        questionId: q._id,
+        text: q.text,
+        options: q.options || [],
+        domain: q.domain,
+        category: q.category,
+        tags: q.tags || [],
+        section: 'F'
+      }))
+    });
+    
+    // Section G - Work Values
+    sections.push({
+      section: 'G',
+      name: 'Work Values',
+      count: workValuesQuestions.length,
+      questions: workValuesQuestions.map(q => ({
+        questionNumber: questionNumber++,
+        questionId: q._id,
+        text: q.text,
+        options: q.options || [],
+        domain: q.domain,
+        category: q.category,
+        tags: q.tags || [],
+        section: 'G'
+      }))
+    });
+    
+    // Flatten all questions
+    const allQuestions = sections.flatMap(s => s.questions);
+    
+    // IMPORTANT: Shuffle all questions randomly so they appear in random order
+    const shuffledQuestions = shuffle(allQuestions).map((q, idx) => ({
+      ...q,
+      questionNumber: idx + 1 // Renumber after shuffle
+    }));
+    
+    res.json({
+      success: true,
+      message: 'Test generated successfully with complete randomization',
+      data: {
+        total: shuffledQuestions.length,
+        sections: sections.map(s => ({
+          section: s.section,
+          name: s.name,
+          count: s.count
+        })),
+        questions: shuffledQuestions,
+        metadata: {
+          generatedAt: new Date(),
+          userStream,
+          version: '3.0',
+          structure: 'Career Compass - Fully Randomized',
+          totalPool: {
+            aptitude: 99,
+            riasec: 56,
+            decision: 38,
+            esi: 60,
+            learning: 58,
+            personality: 105,
+            workValues: 35
+          }
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error generating randomized test:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate randomized test',
+      error: error.message
+    });
+  }
+});
+
+// @route   POST /api/tests/generate/enhanced
+// @desc    Generate 60-question test with enhanced randomization based on Career Compass Blueprint (OLD)
+// @access  Private
+router.post('/generate/enhanced', verifyToken, async (req, res) => {
+  try {
+    const { userStream } = req.body;
+    
+    console.log('🎯 Generating enhanced test with randomization...');
+    
+    // Select all questions using enhanced selector
+    const testData = await enhancedSelector.selectAllTestQuestions(userStream);
+    
+    // Format the response
+    const formattedSections = testData.structure.map((section, idx) => {
+      const startIndex = testData.structure.slice(0, idx).reduce((sum, s) => sum + s.count, 1);
+      
+      return {
+        key: section.name,
+        section: section.section,
+        count: section.count,
+        questions: section.questions.map((q, qIdx) => ({
+          questionNumber: startIndex + qIdx,
+          questionId: q._id,
+          text: q.text,
+          options: q.options.map(opt => ({
+            text: opt.text,
+            ...(opt.riasecType && { riasecType: opt.riasecType }),
+            ...(opt.mappedTrait && { mappedTrait: opt.mappedTrait }),
+            ...(opt.mappedStream && { mappedStream: opt.mappedStream }),
+            ...(opt.isCorrect !== undefined && { isCorrect: opt.isCorrect }),
+            ...(opt.score !== undefined && { score: opt.score })
+          })),
+          domain: q.domain,
+          category: q.category,
+          tags: q.tags || [],
+          metadata: q.metadata
+        }))
+      };
+    });
+    
+    res.json({
+      success: true,
+      message: 'Test generated successfully with randomization',
+      data: {
+        total: testData.total,
+        sections: formattedSections.map(s => ({
+          section: s.section,
+          name: s.key,
+          count: s.count
+        })),
+        questions: formattedSections.flatMap(s => s.questions),
+        metadata: {
+          generatedAt: new Date(),
+          userStream,
+          version: '2.0',
+          structure: 'Career Compass 60Q Blueprint'
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error generating enhanced test:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate enhanced test',
+      error: error.message
+    });
   }
 });
 
