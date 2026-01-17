@@ -35,7 +35,8 @@ const PORT = process.env.PORT || 5000;
 
 // Trust proxy - Required for Render/Heroku and other reverse proxies
 // This allows Express to correctly identify client IPs from X-Forwarded-For headers
-app.set('trust proxy', true);
+// Set to 1 to trust only the first proxy (Render's load balancer) - more secure for rate limiting
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
@@ -62,10 +63,18 @@ app.use(cors({
 }));
 
 // Rate limiting
+// Using trust proxy: 1 means we only trust the first proxy (Render's load balancer)
+// This is secure and prevents IP spoofing while still working with reverse proxies
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  message: { error: 'Too many requests from this IP, please try again later.' }
+  message: { error: 'Too many requests from this IP, please try again later.' },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Custom key generator to use req.ip (which respects trust proxy: 1)
+  keyGenerator: (req) => {
+    return req.ip || req.connection.remoteAddress;
+  }
 });
 app.use('/api/', limiter);
 
