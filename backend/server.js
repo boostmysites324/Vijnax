@@ -57,8 +57,32 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Static files
 app.use('/uploads', express.static('uploads'));
 
-// Health check endpoint
+// Root endpoint (for platform health checks like Render)
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Career Compass API is running',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      api: '/api'
+    }
+  });
+});
+
+// Health check endpoint (also available at root for convenience)
 app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Career Compass API is running',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// Alias for /health (some platforms check this)
+app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Career Compass API is running',
@@ -101,21 +125,28 @@ let pingCount = 0;
 let lastPingStatus = 'unknown';
 
 const startSelfPing = (port) => {
-  // Disable self-ping in production (Render/Heroku/etc. have built-in health checks)
-  if (process.env.NODE_ENV === 'production' || process.env.RENDER) {
-    console.log('⏭️  Self-ping disabled in production (using platform health checks)');
-    return;
-  }
-
   const pingInterval = parseInt(process.env.SELF_PING_INTERVAL_MS) || 30000; // Default: 30 seconds
-  const healthUrl = `http://localhost:${port}/api/health`;
+  
+  // Determine the health check URL
+  // In production (Render), use the public URL or environment variable
+  let healthUrl;
+  if (process.env.NODE_ENV === 'production' || process.env.RENDER) {
+    // Use public URL from environment variable, or construct from Render service URL
+    const publicUrl = process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || `https://${process.env.RENDER_SERVICE_NAME || 'vijnax'}.onrender.com`;
+    healthUrl = `${publicUrl}/api/health`;
+    console.log(`🌐 Production self-ping enabled - will ping: ${healthUrl}`);
+  } else {
+    // Development: use localhost
+    healthUrl = `http://localhost:${port}/api/health`;
+    console.log(`🔄 Development self-ping enabled - will ping: ${healthUrl}`);
+  }
   
   console.log(`🔄 Starting self-ping every ${pingInterval / 1000} seconds...`);
   
   selfPingInterval = setInterval(async () => {
     try {
       const response = await axios.get(healthUrl, { 
-        timeout: 5000,
+        timeout: 10000, // Increased timeout for production
         validateStatus: (status) => status < 500 // Accept 4xx as "server is up"
       });
       pingCount++;
@@ -137,14 +168,15 @@ const startSelfPing = (port) => {
   setTimeout(async () => {
     try {
       const response = await axios.get(healthUrl, { 
-        timeout: 5000,
+        timeout: 10000,
         validateStatus: (status) => status < 500
       });
       console.log(`✅ Initial self-ping successful: ${response.data?.message || 'OK'}`);
     } catch (error) {
       console.error(`❌ Initial self-ping failed: ${error.message}`);
+      console.log(`   This is normal if the service is still starting up. Will retry every ${pingInterval / 1000}s...`);
     }
-  }, 2000); // Wait 2 seconds after server starts
+  }, 5000); // Wait 5 seconds after server starts (longer for production)
 };
 
 // Graceful shutdown
