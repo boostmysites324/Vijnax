@@ -101,6 +101,12 @@ let pingCount = 0;
 let lastPingStatus = 'unknown';
 
 const startSelfPing = (port) => {
+  // Disable self-ping in production (Render/Heroku/etc. have built-in health checks)
+  if (process.env.NODE_ENV === 'production' || process.env.RENDER) {
+    console.log('⏭️  Self-ping disabled in production (using platform health checks)');
+    return;
+  }
+
   const pingInterval = parseInt(process.env.SELF_PING_INTERVAL_MS) || 30000; // Default: 30 seconds
   const healthUrl = `http://localhost:${port}/api/health`;
   
@@ -108,7 +114,10 @@ const startSelfPing = (port) => {
   
   selfPingInterval = setInterval(async () => {
     try {
-      const response = await axios.get(healthUrl, { timeout: 5000 });
+      const response = await axios.get(healthUrl, { 
+        timeout: 5000,
+        validateStatus: (status) => status < 500 // Accept 4xx as "server is up"
+      });
       pingCount++;
       lastPingStatus = response.status === 200 ? 'healthy' : 'unhealthy';
       
@@ -117,7 +126,8 @@ const startSelfPing = (port) => {
       }
     } catch (error) {
       lastPingStatus = 'error';
-      if (pingCount % 20 === 0) { // Only log errors periodically to avoid spam
+      // Only log errors periodically to avoid spam
+      if (pingCount % 20 === 0) {
         console.error(`❌ Self-ping failed: ${error.message}`);
       }
     }
@@ -126,7 +136,10 @@ const startSelfPing = (port) => {
   // Initial ping
   setTimeout(async () => {
     try {
-      const response = await axios.get(healthUrl, { timeout: 5000 });
+      const response = await axios.get(healthUrl, { 
+        timeout: 5000,
+        validateStatus: (status) => status < 500
+      });
       console.log(`✅ Initial self-ping successful: ${response.data?.message || 'OK'}`);
     } catch (error) {
       console.error(`❌ Initial self-ping failed: ${error.message}`);

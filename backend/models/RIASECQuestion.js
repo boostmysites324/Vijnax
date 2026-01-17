@@ -93,7 +93,7 @@ const riasecQuestionSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-riasecQuestionSchema.index({ questionNumber: 1 });
+// Note: questionNumber already has an index from unique: true, so we don't duplicate it
 riasecQuestionSchema.index({ isActive: 1 });
 riasecQuestionSchema.index({ category: 1 });
 

@@ -117,8 +117,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Index for better query performance
-userSchema.index({ email: 1 });
-userSchema.index({ mobile: 1 });
+// Note: email and mobile already have indexes from unique: true, so we don't duplicate them
 userSchema.index({ role: 1 });
 userSchema.index({ isActive: 1 });
 
