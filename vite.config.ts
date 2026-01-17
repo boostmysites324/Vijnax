@@ -3,8 +3,12 @@ import react from '@vitejs/plugin-react-swc'
 import { resolve } from 'node:path'
 import AutoImport from 'unplugin-auto-import/vite'
 
-const base = process.env.BASE_PATH || '/'
-const isPreview = process.env.IS_PREVIEW  ? true : false;
+// In vite.config.ts, we use process.env (Node.js context)
+// In client code (src/), use import.meta.env.VITE_* (browser context)
+const base = process.env.VITE_BASE_PATH || '/'
+const isPreview = process.env.VITE_IS_PREVIEW === 'true';
+const apiTarget = process.env.VITE_API_TARGET || 'http://localhost:5001';
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {
@@ -76,11 +80,11 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3000,
-    host: '0.0.0.0',
+    port: parseInt(process.env.VITE_PORT || '3000'),
+    host: process.env.VITE_HOST || '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'http://localhost:5001',
+        target: apiTarget,
         changeOrigin: true,
         secure: false,
         // Support websockets if needed in future

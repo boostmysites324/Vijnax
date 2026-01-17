@@ -1,7 +1,9 @@
-// API Base URL
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-production-api.com/api' 
-  : 'http://localhost:5001/api';
+// API Base URL - Uses Vite environment variables
+// In Vite, environment variables must be prefixed with VITE_ to be exposed to client
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+  || (import.meta.env.MODE === 'production' 
+    ? import.meta.env.VITE_API_BASE_URL_PROD || 'https://your-production-api.com/api'
+    : 'http://localhost:5001/api');
 
 // API Service Class
 class ApiService {
