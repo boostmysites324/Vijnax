@@ -39,10 +39,25 @@ app.set('trust proxy', true);
 
 // Security middleware
 app.use(helmet());
+
+// CORS configuration from environment variables
+const getCorsOrigins = () => {
+  if (process.env.CORS_ORIGINS) {
+    // Parse comma-separated list from environment variable
+    return process.env.CORS_ORIGINS.split(',').map(origin => origin.trim());
+  }
+  
+  // Fallback to defaults based on environment
+  if (process.env.NODE_ENV === 'production') {
+    return ['https://yourdomain.com']; // Default production domain
+  }
+  
+  // Development defaults
+  return ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173'];
+};
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] 
-    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173'],
+  origin: getCorsOrigins(),
   credentials: true
 }));
 
