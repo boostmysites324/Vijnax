@@ -5,7 +5,7 @@ export default function TestInstructions() {
   };
 
   const instructions = [
-    'This test contains 70 multiple-choice questions covering various domains',
+    'This test contains 60 multiple-choice questions covering various domains',
     'You have 60 minutes to complete the entire assessment',
     'Each question has 4-5 options. Select the one that best describes you',
     'There are no right or wrong answers - answer honestly',
@@ -16,10 +16,10 @@ export default function TestInstructions() {
 
   const domains = [
     { name: 'Section A - Aptitude', questions: 15 },
-    { name: 'Section B - Career interests RAISEC', questions: 12 },
-    { name: 'Section C - Decision making', questions: 10 },
-    { name: 'Section D - Emotional social intelligence', questions: 8 },
-    { name: 'Section E - Learning orientation', questions: 10 },
+    { name: 'Section B - Career interests RAISEC', questions: 10 },
+    { name: 'Section C - Decision making', questions: 6 },
+    { name: 'Section D - Emotional social intelligence', questions: 6 },
+    { name: 'Section E - Learning orientation', questions: 8 },
     { name: 'Section F - Personality Traits', questions: 10 },
     { name: 'Section G - Work values', questions: 5 }
   ];
