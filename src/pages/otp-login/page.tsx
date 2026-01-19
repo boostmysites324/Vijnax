@@ -4,11 +4,10 @@ import { authAPI } from '../../services/api.js';
 
 export default function OtpLogin() {
   const [step, setStep] = useState<'mobile' | 'otp'>('mobile');
-  const [mobileNumber, setMobileNumber] = useState('9582478664'); // Demo number pre-filled
+  const [mobileNumber, setMobileNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [demoMode, setDemoMode] = useState(true); // Enable demo mode by default
 
   const handleSendOtp = async () => {
     if (mobileNumber.length !== 10) {
@@ -20,29 +19,15 @@ export default function OtpLogin() {
     setError('');
     
     try {
-      if (demoMode) {
-        // Demo mode - simulate OTP sending
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
-        console.log('📱 Demo OTP sent to', mobileNumber, ': 123456');
+      const response = await authAPI.sendOTP(mobileNumber);
+      
+      if (response.success) {
         setStep('otp');
       } else {
-        // Real API call
-        const response = await authAPI.sendOTP(mobileNumber);
-        
-        if (response.success) {
-          setStep('otp');
-        } else {
-          setError(response.message || 'Failed to send OTP');
-        }
+        setError(response.message || 'Failed to send OTP');
       }
     } catch (error) {
-      if (demoMode) {
-        // In demo mode, show a helpful message
-        setError('Demo mode: Use 123456 as OTP');
-        setStep('otp');
-      } else {
-        setError(error.message || 'Failed to send OTP. Please try again.');
-      }
+      setError(error.message || 'Failed to send OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -58,48 +43,20 @@ export default function OtpLogin() {
     setError('');
     
     try {
-      if (demoMode) {
-        // Demo mode - accept any 6-digit OTP or specifically 123456
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
+      const response = await authAPI.verifyOTP(mobileNumber, otp);
+      
+      if (response.success) {
+        // Store token
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         
-        if (otp === '123456' || otp.length === 6) {
-          // Store demo user data
-          const demoUser = {
-            id: 'demo-user-123',
-            mobile: mobileNumber,
-            name: 'Demo User',
-            role: 'user'
-          };
-          
-          localStorage.setItem('token', 'demo-token-123');
-          localStorage.setItem('user', JSON.stringify(demoUser));
-          
-          // Navigate to test instructions
-          window.REACT_APP_NAVIGATE('/test-instructions');
-        } else {
-          setError('Invalid OTP. Please try again.');
-        }
+        // Navigate to test instructions
+        window.REACT_APP_NAVIGATE('/test-instructions');
       } else {
-        // Real API call
-        const response = await authAPI.verifyOTP(mobileNumber, otp);
-        
-        if (response.success) {
-          // Store token
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
-          
-          // Navigate to test instructions
-          window.REACT_APP_NAVIGATE('/test-instructions');
-        } else {
-          setError(response.message || 'Invalid OTP. Please try again.');
-        }
+        setError(response.message || 'Invalid OTP. Please try again.');
       }
     } catch (error) {
-      if (demoMode) {
-        setError('Demo mode: Use 123456 as OTP');
-      } else {
-        setError(error.message || 'Invalid OTP. Please try again.');
-      }
+      setError(error.message || 'Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -125,19 +82,6 @@ export default function OtpLogin() {
       
       <div className="relative z-10 max-w-md w-full">
         <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-10">
-          {/* Demo Mode Indicator */}
-          {demoMode && (
-            <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
-              <div className="flex items-center text-yellow-800">
-                <i className="ri-test-tube-line w-4 h-4 flex items-center justify-center mr-2"></i>
-                <span className="font-semibold text-sm">Demo Mode</span>
-              </div>
-              <p className="text-yellow-700 text-xs mt-1">
-                Using demo number: 9582478664 | OTP: 123456
-              </p>
-            </div>
-          )}
-
           {/* Header */}
           <div className="text-center mb-10">
             <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-xl">

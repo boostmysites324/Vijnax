@@ -26,12 +26,6 @@ export const verifyToken = (req, res, next) => {
       });
     }
 
-    // Allow demo token in non-production for easier local testing
-    if (process.env.NODE_ENV !== 'production' && token === 'demo-token-123') {
-      req.user = { id: 'demo-user-123', role: 'user', mobile: '9582478664' };
-      return next();
-    }
-
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     next();

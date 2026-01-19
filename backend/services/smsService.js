@@ -16,9 +16,8 @@ setInterval(() => {
 // Send OTP via MSG91
 export const sendOTP = async (mobile) => {
   try {
-    // DEMO MODE: Fixed OTP for testing number
-    const isDemoNumber = mobile === '9582478664' || mobile === '+919582478664';
-    const otp = isDemoNumber ? '123456' : Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate random 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
     // Store OTP with expiration (10 minutes)
     otpStore.set(mobile, {
@@ -30,11 +29,7 @@ export const sendOTP = async (mobile) => {
 
     // In development, just log the OTP
     if (process.env.NODE_ENV === 'development') {
-      if (isDemoNumber) {
-        console.log(`📱 DEMO OTP for ${mobile}: ${otp} (Fixed demo number)`);
-      } else {
-        console.log(`📱 OTP for ${mobile}: ${otp}`);
-      }
+      console.log(`📱 OTP for ${mobile}: ${otp}`);
       console.log(`   Expires at: ${new Date(Date.now() + 10 * 60 * 1000).toLocaleString()}`);
       return { success: true, message: 'OTP sent (dev mode)', otp }; // Return OTP in dev mode for testing
     }
