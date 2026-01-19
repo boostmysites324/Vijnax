@@ -14,7 +14,7 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 // Send OTP via MSG91
-export const sendOTP = async (mobile) => {
+export const sendOTP = async (mobile, requestId = 'N/A') => {
   try {
     // Generate random 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -29,8 +29,8 @@ export const sendOTP = async (mobile) => {
 
     // In development, just log the OTP
     if (process.env.NODE_ENV === 'development') {
-      console.log(`📱 OTP for ${mobile}: ${otp}`);
-      console.log(`   Expires at: ${new Date(Date.now() + 10 * 60 * 1000).toLocaleString()}`);
+      console.log(`📱 [${requestId}] OTP for ${mobile}: ${otp}`);
+      console.log(`   [${requestId}] Expires at: ${new Date(Date.now() + 10 * 60 * 1000).toLocaleString()}`);
       return { success: true, message: 'OTP sent (dev mode)', otp }; // Return OTP in dev mode for testing
     }
 
@@ -39,9 +39,9 @@ export const sendOTP = async (mobile) => {
       const msg91Url = 'https://api.msg91.com/api/v5/otp';
       const cleanMobile = mobile.replace('+91', '').replace(/\s/g, ''); // Remove +91 and spaces
       
-      console.log(`📤 Attempting to send OTP to ${cleanMobile} via MSG91...`);
-      console.log(`   OTP: ${otp}`);
-      console.log(`   Template ID: ${process.env.MSG91_TEMPLATE_ID}`);
+      console.log(`\n📤 [${requestId}] Attempting to send OTP to ${cleanMobile} via MSG91...`);
+      console.log(`   [${requestId}] OTP: ${otp}`);
+      console.log(`   [${requestId}] Template ID: ${process.env.MSG91_TEMPLATE_ID}`);
       
       const payload = {
         template_id: process.env.MSG91_TEMPLATE_ID,
