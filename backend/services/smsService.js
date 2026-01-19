@@ -36,7 +36,7 @@ export const sendOTP = async (mobile, requestId = 'N/A') => {
 
     // In production, use MSG91
     if (process.env.MSG91_AUTH_KEY) {
-      const msg91Url = 'https://api.msg91.com/api/v5/otp';
+      const msg91Url = 'https://control.msg91.com/api/v5/flow/';
       const cleanMobile = mobile.replace('+91', '').replace(/\s/g, ''); // Remove +91 and spaces
       
       console.log(`\n📤 [${requestId}] Attempting to send OTP to ${cleanMobile} via MSG91...`);
@@ -45,11 +45,16 @@ export const sendOTP = async (mobile, requestId = 'N/A') => {
       
       const payload = {
         template_id: process.env.MSG91_TEMPLATE_ID,
-        mobile: cleanMobile,
-        authkey: process.env.MSG91_AUTH_KEY,
-        otp: otp,
-        otp_expiry: 10 // minutes
+        short_url: '0',
+        recipients: [
+          {
+            mobiles: `91${cleanMobile}`,
+            number: otp  // Use 'number' to match ##number## variable in template
+          }
+        ]
       };
+      
+      console.log(`   [${requestId}] Payload:`, JSON.stringify(payload));
       
       const response = await axios.post(msg91Url, payload, {
         headers: {
@@ -60,7 +65,8 @@ export const sendOTP = async (mobile, requestId = 'N/A') => {
 
       console.log(`📥 [${requestId}] MSG91 Response:`, JSON.stringify(response.data));
 
-      if (response.data.type === 'success') {
+      // MSG91 Flow API returns { type: 'success', message: '...' } on success
+      if (response.data.type === 'success' || response.data.message === 'Message sent successfully') {
         console.log(`✅ [${requestId}] OTP ${otp} sent successfully to ${cleanMobile} via MSG91\n`);
         return { success: true, message: 'OTP sent successfully' };
       } else {
