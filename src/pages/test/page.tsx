@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { testAPI } from '../../services/api';
 
 interface ApiOption {
   text: string;
@@ -25,15 +26,6 @@ export default function Test() {
   const [questions, setQuestions] = useState<Question[]>([]);
 
   // Utilities
-  const authHeaders = () => {
-    const isDev = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
-    const token = localStorage.getItem('token') || (isDev ? 'demo-token-123' : '');
-    return {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    } as HeadersInit;
-  };
-
   const mapToLocal = (section: string, list: ApiQuestionGeneric[] | undefined, startIndex: number) => {
     const arr = list || [];
     return arr.map((q, i) => ({
@@ -49,19 +41,9 @@ export default function Test() {
     const loadPhased = async () => {
       try {
         console.log('🔄 Loading randomized test questions...');
-        
-        // Call the new unified endpoint that returns all 60 randomized questions
-        const res = await fetch('/api/tests/generate/randomized', { 
-          method: 'POST', 
-          headers: authHeaders(), 
-          body: JSON.stringify({ userStream: 'PCM' }) 
-        });
-        
-        if (!res.ok) {
-          throw new Error(`Failed to load test: ${res.status} ${res.statusText}`);
-        }
-        
-        const json = await res.json();
+
+        // Call the API service which handles the correct backend URL
+        const json = await testAPI.generateRandomized('PCM');
         console.log('✅ Test data received:', json);
         
         if (!json.success) {
@@ -83,7 +65,7 @@ export default function Test() {
           console.error('❌ No questions loaded!');
           throw new Error('No questions received from server');
         }
-        
+
         setQuestions(assembled);
       } catch (e) {
         console.error('Failed to load phased A–G test.', e);

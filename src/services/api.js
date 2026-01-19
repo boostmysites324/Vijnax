@@ -2,7 +2,7 @@
 // In Vite, environment variables must be prefixed with VITE_ to be exposed to client
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
   || (import.meta.env.MODE === 'production' 
-    ? import.meta.env.VITE_API_BASE_URL_PROD || 'https://your-production-api.com/api'
+    ? import.meta.env.VITE_API_BASE_URL_PROD || 'https://vijnax.onrender.com/api'
     : 'http://localhost:5001/api');
 
 // API Service Class
@@ -148,6 +148,10 @@ export const testAPI = {
 
   // Get test results
   getTestResults: (testId) => api.get(`/tests/${testId}/results`),
+  
+  // Generate randomized test (60 questions)
+  generateRandomized: (userStream = 'PCM') => 
+    api.post('/tests/generate/randomized', { userStream }),
 };
 
 // User API methods
