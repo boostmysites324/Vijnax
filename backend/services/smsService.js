@@ -58,28 +58,28 @@ export const sendOTP = async (mobile) => {
         }
       });
 
-      console.log(`📥 MSG91 Response:`, JSON.stringify(response.data));
+      console.log(`📥 [${requestId}] MSG91 Response:`, JSON.stringify(response.data));
 
       if (response.data.type === 'success') {
-        console.log(`✅ OTP ${otp} sent successfully to ${cleanMobile} via MSG91`);
+        console.log(`✅ [${requestId}] OTP ${otp} sent successfully to ${cleanMobile} via MSG91\n`);
         return { success: true, message: 'OTP sent successfully' };
       } else {
-        console.error(`❌ MSG91 returned non-success response:`, response.data);
+        console.error(`❌ [${requestId}] MSG91 returned non-success response:`, response.data);
         throw new Error(`MSG91 API error: ${JSON.stringify(response.data)}`);
       }
     }
 
     // Fallback to console log if MSG91 not configured
-    console.log(`📱 OTP for ${mobile}: ${otp} (MSG91 not configured)`);
+    console.log(`📱 [${requestId}] OTP for ${mobile}: ${otp} (MSG91 not configured)`);
     return { success: true, message: 'OTP sent (fallback mode)', otp };
     
   } catch (error) {
-    console.error('❌ Send OTP error:', error.message);
+    console.error(`❌ [${requestId}] Send OTP error:`, error.message);
     if (error.response) {
-      console.error('   MSG91 Error Response:', JSON.stringify(error.response.data));
-      console.error('   Status Code:', error.response.status);
+      console.error(`   [${requestId}] MSG91 Error Response:`, JSON.stringify(error.response.data));
+      console.error(`   [${requestId}] Status Code:`, error.response.status);
     }
-    console.error('   Full Error:', error);
+    console.error(`   [${requestId}] Full Error:`, error);
     
     // In case of error, still return success in dev mode
     if (process.env.NODE_ENV === 'development') {

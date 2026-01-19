@@ -37,9 +37,14 @@ router.post('/send-otp', [
     }
 
     const { mobile } = req.body;
+    const requestId = Math.random().toString(36).substring(7);
+    
+    console.log(`\n🔵 [${requestId}] OTP Request received for mobile: ${mobile}`);
+    console.log(`🔵 [${requestId}] Request IP: ${req.ip || req.connection.remoteAddress}`);
+    console.log(`🔵 [${requestId}] Request body:`, req.body);
 
     // Send OTP via MSG91
-    const result = await sendOTP(mobile);
+    const result = await sendOTP(mobile, requestId);
     
     if (result.success) {
       const response = {
