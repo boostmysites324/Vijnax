@@ -37,25 +37,35 @@ export const sendOTP = async (mobile) => {
     // In production, use MSG91
     if (process.env.MSG91_AUTH_KEY) {
       const msg91Url = 'https://api.msg91.com/api/v5/otp';
+      const cleanMobile = mobile.replace('+91', '').replace(/\s/g, ''); // Remove +91 and spaces
       
-      const response = await axios.post(msg91Url, {
+      console.log(`📤 Attempting to send OTP to ${cleanMobile} via MSG91...`);
+      console.log(`   OTP: ${otp}`);
+      console.log(`   Template ID: ${process.env.MSG91_TEMPLATE_ID}`);
+      
+      const payload = {
         template_id: process.env.MSG91_TEMPLATE_ID,
-        mobile: mobile.replace('+91', ''), // MSG91 expects 10-digit number
+        mobile: cleanMobile,
         authkey: process.env.MSG91_AUTH_KEY,
         otp: otp,
         otp_expiry: 10 // minutes
-      }, {
+      };
+      
+      const response = await axios.post(msg91Url, payload, {
         headers: {
           'Content-Type': 'application/json',
           'authkey': process.env.MSG91_AUTH_KEY
         }
       });
 
+      console.log(`📥 MSG91 Response:`, JSON.stringify(response.data));
+
       if (response.data.type === 'success') {
-        console.log(`✅ OTP sent to ${mobile} via MSG91`);
+        console.log(`✅ OTP ${otp} sent successfully to ${cleanMobile} via MSG91`);
         return { success: true, message: 'OTP sent successfully' };
       } else {
-        throw new Error('MSG91 API returned error');
+        console.error(`❌ MSG91 returned non-success response:`, response.data);
+        throw new Error(`MSG91 API error: ${JSON.stringify(response.data)}`);
       }
     }
 
@@ -64,7 +74,13 @@ export const sendOTP = async (mobile) => {
     return { success: true, message: 'OTP sent (fallback mode)', otp };
     
   } catch (error) {
-    console.error('Send OTP error:', error.message);
+    console.error('❌ Send OTP error:', error.message);
+    if (error.response) {
+      console.error('   MSG91 Error Response:', JSON.stringify(error.response.data));
+      console.error('   Status Code:', error.response.status);
+    }
+    console.error('   Full Error:', error);
+    
     // In case of error, still return success in dev mode
     if (process.env.NODE_ENV === 'development') {
       const data = otpStore.get(mobile);
